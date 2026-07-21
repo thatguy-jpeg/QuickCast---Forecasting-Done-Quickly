@@ -103,6 +103,8 @@ def insert_records_orders(cur, df, username="Guest", password=""):
     df = df.merge(products[["Product ID", "product_id"]], on="Product ID")
     df["user_id"] = users[0]
 
+    df["Order Date"] = pd.to_datetime(df["Order Date"], format="%m/%d/%Y").dt.strftime("%Y-%m-%d")
+
     recs = df[["Order ID", "customer_id", "location_id", "employee_id", "user_id", "Order Date"]].drop_duplicates(subset = ["Order ID"])
 
     df[["Sales"]] = df[["Sales"]] * 100
