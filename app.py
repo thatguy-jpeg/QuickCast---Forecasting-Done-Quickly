@@ -8,6 +8,7 @@ query function -> convert rows to dicts -> close connection -> jsonify.
 """
 
 import sqlite3
+import pandas as pd
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -19,6 +20,7 @@ from query_functions import (
     employee_query,
     forecast,
 )
+from insertion import insert_records_orders
 
 app = Flask(__name__)
 # Frontend origin is GitHub Pages, backend origin is the ngrok tunnel.
@@ -54,6 +56,68 @@ def is_currency_agg(agg, sale_profit_param):
     """True only when the aggregate is actually a money figure: SUM/AVG/MAX/MIN
     of sales or profit. COUNT(sales) is a row count, not money — never divide."""
     return sale_profit_param in ("sales", "profit") and agg.upper() != "COUNT"
+
+
+# ---------------------------------------------------------------------------
+# CSV upload -> new user (Module 4 extension for live demo)
+# ---------------------------------------------------------------------------
+
+# Same column subset guest_insertion.py extracts from the raw Superstore CSV
+# (and what guest_data.csv / demo_data.csv already contain).
+UPLOAD_COLUMNS = [
+    "Row ID", "Order ID", "Order Date", "Customer ID", "Customer Name",
+    "Country", "City", "State", "Postal Code", "Retail Sales People",
+    "Product ID", "Category", "Sub-Category", "Product Name",
+    "Returned", "Sales", "Quantity", "Discount", "Profit",
+]
+
+
+@app.route("/api/upload", methods=["POST"])
+def api_upload():
+    username = request.form.get("username", "").strip()
+    if not username:
+        return jsonify({"error": "username is required"}), 400
+
+    file = request.files.get("file")
+    if file is None or file.filename == "":
+        return jsonify({"error": "csv file is required"}), 400
+
+    try:
+        df = pd.read_csv(file, encoding="latin1")
+    except Exception as e:
+        return jsonify({"error": f"could not read CSV: {e}"}), 400
+
+    missing = [c for c in UPLOAD_COLUMNS if c not in df.columns]
+    if missing:
+        return jsonify({"error": f"CSV missing required columns: {', '.join(missing)}"}), 400
+
+    df = df[UPLOAD_COLUMNS].copy()
+    # Harmless no-op if this file already has 0/1 (e.g. demo_data.csv); handles
+    # a raw "Not"/"Yes" Returned column too, matching guest_insertion.py.
+    df["Returned"] = df["Returned"].replace({"Not": 0, "Yes": 1})
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    # Pre-check username uniqueness ourselves: insert_customers/insert_locations/
+    # insert_employees each commit immediately (no shared transaction across the
+    # five insert_* calls), so letting a duplicate-username IntegrityError happen
+    # inside insert_user (which runs after those three) would leave orphaned
+    # customer/location/employee rows behind. Checking first avoids that for the
+    # common failure case of re-running the demo with the same name.
+    existing = cur.execute("SELECT 1 FROM users WHERE username = ?", (username,)).fetchone()
+    if existing:
+        conn.close()
+        return jsonify({"error": f'username "{username}" is already taken'}), 409
+
+    try:
+        new_user_id = insert_records_orders(cur=cur, df=df, username=username, password="")
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+
+    conn.close()
+    return jsonify({"user_id": new_user_id, "username": username})
 
 
 # ---------------------------------------------------------------------------

@@ -145,6 +145,42 @@ public link.
 
 ---
 
+## 5b. New feature: upload demo data as a new user (live, in-app)
+
+The page now has an **UPLOAD CSV** panel above USER_ID. It calls `POST /api/upload`
+(`username` + `file` as multipart form data), which:
+
+1. Rejects if `username` already exists in `users` (409).
+2. Runs the CSV through the same `insert_records_orders()` used for the Guest
+   load, under the new username.
+3. Returns the new `user_id`, which the page auto-fills into the USER_ID field.
+
+**File requirement:** the CSV must have the same 19 columns as `demo_data.csv`
+(the split-off 20% from `guest_insertion.py`). For the demo, just upload
+`demo_data.csv` directly through the panel — that's exactly what it's for.
+
+**Known limitation, accepted for demo scope:** `insert_customers` /
+`insert_locations` / `insert_employees` each commit immediately and
+independently (pre-existing behavior, not changed here). `app.py` pre-checks
+the username before calling any of them, which covers the most likely
+on-camera failure (re-using a username). But if the upload fails for some
+other reason (e.g. malformed row) partway through, rows already committed to
+`customers`/`locations`/`employees`/`products` for that attempt are not rolled
+back. Not a concern for a single clean demo run; worth knowing if you're
+retrying failed uploads repeatedly.
+
+Quick check it works before recording:
+
+```bash
+curl -X POST http://localhost:5000/api/upload \
+  -F "username=demo_run1" \
+  -F "file=@demo_data.csv"
+```
+
+Should return `{"user_id": 2, "username": "demo_run1"}` (or similar).
+
+---
+
 ## 6. Full demo-day sequence
 
 Do these in order, right before recording:

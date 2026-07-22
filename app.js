@@ -205,7 +205,44 @@ async function runForecast() {
   }
 }
 
+async function uploadNewUser() {
+  const username = document.getElementById("new-username").value.trim();
+  const file = document.getElementById("csv-file").files[0];
+
+  if (!username) {
+    setStatus("error — enter a username first");
+    return;
+  }
+  if (!file) {
+    setStatus("error — choose a CSV file first");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("username", username);
+  formData.append("file", file);
+
+  setStatus("uploading & creating account...");
+  try {
+    const res = await fetch(API_BASE + "/api/upload", {
+      method: "POST",
+      headers: { "ngrok-skip-browser-warning": "true" }, // no Content-Type: browser sets the multipart boundary
+      body: formData,
+    });
+    const result = await res.json();
+    if (!res.ok) {
+      throw new Error(result.error || `upload failed: ${res.status}`);
+    }
+    document.getElementById("user-id").value = result.user_id;
+    setStatus(`ok — account "${result.username}" created as user_id ${result.user_id}`);
+  } catch (err) {
+    console.error(err);
+    setStatus(`error — ${err.message}`);
+  }
+}
+
 document.getElementById("run-btn").addEventListener("click", runQuery);
 document.getElementById("forecast-run-btn").addEventListener("click", runForecast);
+document.getElementById("upload-btn").addEventListener("click", uploadNewUser);
 
 updateControlVisibility();

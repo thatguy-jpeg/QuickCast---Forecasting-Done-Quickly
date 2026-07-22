@@ -140,3 +140,5 @@ def insert_records_orders(cur, df, username="Guest", password=""):
         cur.execute(query, (row[0], row[1], row[2], row[3], round(row[4]), round(row[5]), round(row[6]), row[7]))
     
     cur.connection.commit()
+
+    return users[0]

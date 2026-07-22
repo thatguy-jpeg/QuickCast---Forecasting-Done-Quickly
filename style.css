@@ -116,6 +116,34 @@ select {
 input[type="number"] { width: 90px; }
 input[type="text"] { width: 220px; }
 
+input[type="file"] {
+  width: 220px;
+  color: var(--text-dim);
+  font-size: 12px;
+  padding: 6px 8px;
+}
+
+input[type="file"]::file-selector-button {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--phosphor);
+  font-family: var(--font-body);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.upload-row {
+  align-items: flex-end;
+}
+
+.upload-panel .hint {
+  display: block;
+  margin-top: 4px;
+}
+
 input:focus, select:focus, button:focus {
   border-color: var(--phosphor);
   box-shadow: 0 0 0 1px var(--phosphor);

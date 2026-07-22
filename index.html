@@ -19,10 +19,26 @@
     <div class="term-subtitle">retail sales terminal — DSCI-D 532</div>
   </header>
 
+  <section class="panel upload-panel">
+    <span class="field-label">NEW ACCOUNT — UPLOAD CSV</span>
+    <div class="control-row upload-row">
+      <div class="control-block">
+        <label class="field-label" for="new-username">USERNAME</label>
+        <input type="text" id="new-username" placeholder="e.g. demo_user">
+      </div>
+      <div class="control-block">
+        <label class="field-label" for="csv-file">CSV FILE</label>
+        <input type="file" id="csv-file" accept=".csv">
+      </div>
+      <button type="button" id="upload-btn" class="run-btn">CREATE ACCOUNT ▸</button>
+    </div>
+    <span class="hint">CSV must match the Superstore column set (same shape as demo_data.csv)</span>
+  </section>
+
   <section class="panel session-panel">
     <label class="field-label" for="user-id">USER_ID</label>
     <input type="number" id="user-id" value="1" min="1" placeholder="1">
-    <span class="hint">defaults to the seeded Guest account</span>
+    <span class="hint">defaults to the seeded Guest account — auto-fills after a successful upload</span>
   </section>
 
   <section class="panel controls-panel">
