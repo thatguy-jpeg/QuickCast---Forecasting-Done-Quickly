@@ -5,9 +5,9 @@ from database_init import init
 from pathlib import Path
 from insertion import insert_records_orders
 
-if not Path("guest_data.csv").exists():
+if not Path("../data/guest_data.csv").exists():
     
-    df = pd.read_csv("Retail-Supply-Chain-Sales-Dataset(Retails Order Full Dataset).csv", encoding="latin1")
+    df = pd.read_csv("../data/Retail-Supply-Chain-Sales-Dataset(Retails Order Full Dataset).csv", encoding="latin1")
 
     df = df[["Row ID", "Order ID", "Order Date", "Customer ID", "Customer Name", "Country", "City", "State", "Postal Code", "Retail Sales People", "Product ID", "Category", "Sub-Category", "Product Name", "Returned", "Sales", "Quantity", "Discount", "Profit"]]
 
@@ -20,11 +20,11 @@ if not Path("guest_data.csv").exists():
     demo.to_csv('demo_data.csv', index=False)
 
 
-df = pd.read_csv("guest_data.csv", encoding="latin1")
+df = pd.read_csv("../data/guest_data.csv", encoding="latin1")
 
 init()
 
-con = sql.connect("quickcast.db")
+con = sql.connect("../quickcast.db")
 c = con.cursor()
 
 c.execute("PRAGMA foreign_keys = ON;")

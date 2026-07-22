@@ -4,9 +4,6 @@ import sqlite3 as sql
 from database_init import init
 
 def clean_postal_code(value):
-    """Missing codes -> NULL (not the literal string "nan"). Valid codes that
-    pandas upcast to float because of missing values elsewhere in the column
-    (e.g. 10024.0) -> clean string ("10024"), not "10024.0"."""
     if pd.isna(value):
         return None
     if isinstance(value, float):
