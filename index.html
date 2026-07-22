@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuickCast — Retail Sales Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="terminal">
+
+  <header class="term-header">
+    <div class="term-title">
+      <span class="bracket">[</span>QUICKCAST<span class="bracket">]</span><span class="cursor">_</span>
+    </div>
+    <div class="term-subtitle">retail sales terminal — DSCI-D 532</div>
+  </header>
+
+  <section class="panel session-panel">
+    <label class="field-label" for="user-id">USER_ID</label>
+    <input type="number" id="user-id" value="1" min="1" placeholder="1">
+    <span class="hint">defaults to the seeded Guest account</span>
+  </section>
+
+  <section class="panel controls-panel">
+
+    <div class="control-block">
+      <span class="field-label">DIMENSION</span>
+      <div class="dim-tabs">
+        <button type="button" class="dim-btn is-active" data-dim="customers">CUSTOMERS</button>
+        <button type="button" class="dim-btn" data-dim="products">PRODUCTS</button>
+        <button type="button" class="dim-btn" data-dim="locations">LOCATIONS</button>
+        <button type="button" class="dim-btn" data-dim="employees">EMPLOYEES</button>
+      </div>
+    </div>
+
+    <div class="control-row">
+      <div class="control-block">
+        <label class="field-label" for="agg">AGG</label>
+        <select id="agg">
+          <option value="COUNT" selected>COUNT</option>
+          <option value="SUM">SUM</option>
+          <option value="AVG">AVG</option>
+          <option value="MAX">MAX</option>
+          <option value="MIN">MIN</option>
+        </select>
+      </div>
+
+      <div class="control-block">
+        <label class="field-label" for="order">ORDER</label>
+        <select id="order">
+          <option value="DESC" selected>DESC</option>
+          <option value="ASC">ASC</option>
+        </select>
+      </div>
+
+      <div class="control-block">
+        <label class="field-label" for="limit">LIMIT</label>
+        <input type="number" id="limit" value="10" min="1" max="100">
+      </div>
+
+      <div class="control-block" id="sp-group">
+        <label class="field-label" for="sale-profit">METRIC</label>
+        <select id="sale-profit">
+          <option value="off" selected>OFF (count)</option>
+          <option value="sales">SALES</option>
+          <option value="profit">PROFIT</option>
+        </select>
+      </div>
+
+      <div class="control-block is-hidden" id="level-group">
+        <label class="field-label" for="level">LEVEL</label>
+        <select id="level">
+          <option value="city" selected>CITY</option>
+          <option value="state">STATE</option>
+          <option value="country">COUNTRY</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="button" id="run-btn" class="run-btn">RUN QUERY ▸</button>
+
+  </section>
+
+  <section class="panel screen-panel">
+    <div class="screen-label">TOP-N RESULTS</div>
+    <div class="screen">
+      <canvas id="results-chart"></canvas>
+    </div>
+  </section>
+
+  <section class="panel forecast-panel">
+    <div class="control-block forecast-input-row">
+      <label class="field-label" for="forecast-name">PRODUCT NAME</label>
+      <input type="text" id="forecast-name" placeholder="e.g. Xerox 1918">
+      <button type="button" id="forecast-run-btn" class="run-btn">FORECAST ▸</button>
+    </div>
+    <div class="screen-label">MONTHLY QUANTITY</div>
+    <div class="screen">
+      <canvas id="forecast-chart"></canvas>
+    </div>
+  </section>
+
+  <footer class="term-footer">
+    <span id="status-line">ready.</span>
+  </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

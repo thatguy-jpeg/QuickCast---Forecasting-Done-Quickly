@@ -3,6 +3,16 @@ import numpy as np
 import sqlite3 as sql
 from database_init import init
 
+def clean_postal_code(value):
+    """Missing codes -> NULL (not the literal string "nan"). Valid codes that
+    pandas upcast to float because of missing values elsewhere in the column
+    (e.g. 10024.0) -> clean string ("10024"), not "10024.0"."""
+    if pd.isna(value):
+        return None
+    if isinstance(value, float):
+        return str(int(value))
+    return str(value)
+
 def insert_locations(cur, df):
     df = df[["Country", "State", "City", "Postal Code"]].drop_duplicates()
     ids = []
@@ -13,7 +23,7 @@ def insert_locations(cur, df):
         VALUES (?, ?, ?, ?)
         RETURNING location_id;
         '''
-        cur.execute(query, (row[0], row[1], row[2], str(row[3])))
+        cur.execute(query, (row[0], row[1], row[2], clean_postal_code(row[3])))
         ids.append(cur.fetchone()[0])
 
     df["location_id"] = ids
@@ -127,6 +137,6 @@ def insert_records_orders(cur, df, username="Guest", password=""):
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     '''
         
-        cur.execute(query, (row[0], row[1], row[2], row[3], int(row[4]), int(row[5]), int(row[6]), row[7]))
+        cur.execute(query, (row[0], row[1], row[2], row[3], round(row[4]), round(row[5]), round(row[6]), row[7]))
     
     cur.connection.commit()
