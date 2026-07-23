@@ -13,12 +13,14 @@ if not Path("./data/guest_data.csv").exists():
 
     df["Returned"] = df["Returned"].replace({"Not": 0, "Yes": 1})
 
-    demo = df.sample(frac=0.2, random_state=42)
-    main = df.drop(demo.index)
+        
+    order_ids = df["Order ID"].unique()
+    demo_ids = pd.Series(order_ids).sample(frac=0.2, random_state=42)
+    demo = df[df["Order ID"].isin(demo_ids)]
+    main = df[~df["Order ID"].isin(demo_ids)]
 
     main.to_csv('guest_data.csv', index=False)
     demo.to_csv('demo_data.csv', index=False)
-
 
 df = pd.read_csv("./data/guest_data.csv", encoding="latin1")
 
