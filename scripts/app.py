@@ -28,7 +28,7 @@ app = Flask(__name__)
 # Pages origin if you want it tighter.
 CORS(app)
 
-DB_PATH = "quickcast.db"
+DB_PATH = ".quickcast.db"
 
 
 def get_conn():

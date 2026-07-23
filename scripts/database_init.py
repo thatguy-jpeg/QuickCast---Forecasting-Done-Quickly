@@ -2,7 +2,7 @@ def init():
     
     import sqlite3 as sql
 
-    con = sql.connect('../quickcast.db')
+    con = sql.connect('./quickcast.db')
 
     c = con.cursor()
 
