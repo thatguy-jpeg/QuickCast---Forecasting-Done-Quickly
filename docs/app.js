@@ -246,3 +246,92 @@ document.getElementById("forecast-run-btn").addEventListener("click", runForecas
 document.getElementById("upload-btn").addEventListener("click", uploadNewUser);
 
 updateControlVisibility();
+
+
+function getOrder(row_id) {
+  return apiGet(`/api/order/${row_id}`);
+}
+
+async function lookupOrder() {
+  const row_id = document.getElementById("edit-row-id").value;
+  if (!row_id) {
+    setStatus("error — enter a row_id first");
+    return;
+  }
+  setStatus("looking up order...");
+  try {
+    const data = await getOrder(row_id);
+    document.getElementById("edit-quantity").value = data.quantity;
+    document.getElementById("edit-sales").value = data.sales;
+    document.getElementById("edit-discount").value = data.discount;
+    document.getElementById("edit-profit").value = data.profit ?? "";
+    document.getElementById("edit-returned").value = String(data.returned ?? 0);
+    setStatus(`ok — loaded row_id ${data.row_id}`);
+  } catch (err) {
+    console.error(err);
+    setStatus(`error — ${err.message}`);
+  }
+}
+
+async function saveOrder() {
+  const row_id = document.getElementById("edit-row-id").value;
+  const quantity = document.getElementById("edit-quantity").value;
+  const sales = document.getElementById("edit-sales").value;
+  const discount = document.getElementById("edit-discount").value;
+  const profit = document.getElementById("edit-profit").value;
+  const returned = document.getElementById("edit-returned").value;
+
+  if (!row_id || !quantity || !sales || !discount || !profit) {
+    setStatus("error — fill in row_id, quantity, sales, discount, and profit");
+    return;
+  }
+
+  setStatus("saving update...");
+  try {
+    const res = await fetch(`${API_BASE}/api/order/${row_id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+      body: JSON.stringify({
+        quantity: Number(quantity),
+        sales: Number(sales),
+        discount: Number(discount),
+        profit: Number(profit),
+        returned: Number(returned),
+      }),
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || `update failed: ${res.status}`);
+    setStatus(`ok — row_id ${result.row_id} updated`);
+  } catch (err) {
+    console.error(err);
+    setStatus(`error — ${err.message}`);
+  }
+}
+
+async function deleteAccount() {
+  const user_id = document.getElementById("delete-user-id").value;
+  if (!user_id) {
+    setStatus("error — enter a user_id first");
+    return;
+  }
+  setStatus("deleting account...");
+  try {
+    const res = await fetch(`${API_BASE}/api/users/${user_id}`, {
+      method: "DELETE",
+      headers: { "ngrok-skip-browser-warning": "true" },
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || `delete failed: ${res.status}`);
+    setStatus(`ok — user_id ${result.user_id} deleted`);
+  } catch (err) {
+    console.error(err);
+    setStatus(`error — ${err.message}`);
+  }
+}
+
+document.getElementById("lookup-btn").addEventListener("click", lookupOrder);
+document.getElementById("save-order-btn").addEventListener("click", saveOrder);
+document.getElementById("delete-user-btn").addEventListener("click", deleteAccount);

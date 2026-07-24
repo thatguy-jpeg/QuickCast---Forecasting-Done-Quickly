@@ -19,6 +19,8 @@ from query_functions import (
     location_query,
     employee_query,
     forecast,
+    update,
+    delete,
 )
 from insertion import insert_records_orders
 
@@ -225,6 +227,83 @@ def api_forecast():
     data = rows_to_dicts(rows, "month", "quantity")
     return jsonify(data)
 
+
+@app.route("/api/order/<int:row_id>")
+def api_get_order(row_id):
+    conn = get_conn()
+    cur = conn.cursor()
+    row = cur.execute(
+        "SELECT row_id, quantity, sales, discount, profit, returned FROM orders WHERE row_id = ?",
+        (row_id,)
+    ).fetchone()
+    conn.close()
+
+    if row is None:
+        return jsonify({"error": f"no order with row_id {row_id}"}), 404
+
+    return jsonify({
+        "row_id": row[0],
+        "quantity": row[1],
+        "sales": row[2] / 100,
+        "discount": row[3] / 100,
+        "profit": row[4] / 100 if row[4] is not None else None,
+        "returned": row[5],
+    })
+
+
+@app.route("/api/order/<int:row_id>", methods=["POST"])
+def api_update_order(row_id):
+    data = request.get_json(silent=True) or {}
+    try:
+        quantity = int(data["quantity"])
+        sales = float(data["sales"])
+        discount = float(data["discount"])
+        profit = float(data["profit"])
+        returned = int(data["returned"])
+    except (KeyError, TypeError, ValueError) as e:
+        return jsonify({"error": f"invalid or missing field: {e}"}), 400
+
+    if returned not in (0, 1):
+        return jsonify({"error": "returned must be 0 or 1"}), 400
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    exists = cur.execute("SELECT 1 FROM orders WHERE row_id = ?", (row_id,)).fetchone()
+    if not exists:
+        conn.close()
+        return jsonify({"error": f"no order with row_id {row_id}"}), 404
+
+    try:
+        update(cur, row_id, quantity, sales, discount, profit, returned)
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+
+    conn.close()
+    return jsonify({"row_id": row_id, "status": "updated"})
+
+@app.route("/api/users/<int:user_id>", methods=["DELETE"])
+def api_delete_user(user_id):
+    if user_id == 1:
+        return jsonify({"error": "the seeded Guest account (user_id 1) can't be deleted"}), 403
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    exists = cur.execute("SELECT 1 FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    if not exists:
+        conn.close()
+        return jsonify({"error": f"no user with user_id {user_id}"}), 404
+
+    try:
+        delete(cur, user_id)
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+
+    conn.close()
+    return jsonify({"user_id": user_id, "status": "deleted"})
 
 if __name__ == "__main__":
     # debug stays OFF: this server gets tunneled to the public internet via

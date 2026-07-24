@@ -120,6 +120,55 @@
     </div>
   </section>
 
+  <section class="panel edit-panel">
+    <span class="field-label">EDIT ORDER (UPDATE)</span>
+    <div class="control-row">
+      <div class="control-block">
+        <label class="field-label" for="edit-row-id">ROW_ID</label>
+        <input type="number" id="edit-row-id" min="1" placeholder="e.g. 42">
+      </div>
+      <button type="button" id="lookup-btn" class="run-btn">LOOKUP ▸</button>
+    </div>
+    <div class="control-row">
+      <div class="control-block">
+        <label class="field-label" for="edit-quantity">QUANTITY</label>
+        <input type="number" id="edit-quantity" min="1">
+      </div>
+      <div class="control-block">
+        <label class="field-label" for="edit-sales">SALES ($)</label>
+        <input type="number" id="edit-sales" step="0.01">
+      </div>
+      <div class="control-block">
+        <label class="field-label" for="edit-discount">DISCOUNT ($)</label>
+        <input type="number" id="edit-discount" step="0.01">
+      </div>
+      <div class="control-block">
+        <label class="field-label" for="edit-profit">PROFIT ($)</label>
+        <input type="number" id="edit-profit" step="0.01">
+      </div>
+      <div class="control-block">
+        <label class="field-label" for="edit-returned">RETURNED</label>
+        <select id="edit-returned">
+          <option value="0" selected>NO</option>
+          <option value="1">YES</option>
+        </select>
+      </div>
+    </div>
+    <button type="button" id="save-order-btn" class="run-btn">SAVE UPDATE ▸</button>
+  </section>
+
+  <section class="panel delete-panel">
+    <span class="field-label">DELETE ACCOUNT</span>
+    <div class="control-row">
+      <div class="control-block">
+        <label class="field-label" for="delete-user-id">USER_ID</label>
+        <input type="number" id="delete-user-id" min="1" placeholder="e.g. 2">
+      </div>
+      <button type="button" id="delete-user-btn" class="run-btn">DELETE ACCOUNT ▸</button>
+    </div>
+    <span class="hint">permanent — deletes the user and all their orders/records. user_id 1 (Guest) is protected.</span>
+  </section>
+
   <footer class="term-footer">
     <span id="status-line">ready.</span>
   </footer>

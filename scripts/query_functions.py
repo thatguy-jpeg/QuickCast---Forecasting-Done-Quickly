@@ -156,9 +156,9 @@ def forecast(cur, name_chosen, product_name=True):
 
 def update(cur, row_id, quantity, sales, discount, profit, returned):
     
-    sales = sales * 100
-    profit = profit * 100
-    discount = discount * 100
+    sales = round(sales * 100)
+    profit = round(profit * 100)
+    discount = round(discount * 100)
 
     query = f'''
     UPDATE orders SET 
